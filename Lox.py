@@ -1,4 +1,5 @@
 import sys
+from Scanner import Scanner
 
 class Lox:
     hadError: bool = False
@@ -7,7 +8,11 @@ class Lox:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
         for token in tokens:
-            print(token)
+            print(token.line, end=" ")
+            print(token.lexeme, end= " ")
+            print(token.literal, end= " ")
+            print(token.type)
+            print("------------------")
 
     @staticmethod
     def runFile(path: str) -> None:
@@ -28,15 +33,6 @@ class Lox:
             Lox.run(line)
             Lox.hadError = False
 
-    
-    @staticmethod
-    def report(line: int, where: str, message: str) -> None:
-        print("[line {line}] Error {where} : {message}".format(line = line, where = where, message  = message))
-
-    @staticmethod
-    def error(line: int, message: str) -> None:
-        Lox.report(line, "", message)
-
 
     def __init__(self, args: list[str]) -> None:
         if len(args) > 1:
@@ -47,4 +43,5 @@ class Lox:
         else:
             Lox.runPrompt()
 
+lox = Lox([])
  
