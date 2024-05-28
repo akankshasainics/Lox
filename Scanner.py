@@ -71,8 +71,10 @@ class Scanner:
             self.addToken(tokenType.GREATER_EQUAL if self.match("=") else tokenType.GREATER)
         elif c == "/":
             if self.match("/"):
-                while self.peek() != "\n" and self.isAtEnd():
+                while self.peek() != "\n" and not self.isAtEnd():
                     self.advance()
+            elif self.match("*"):
+                self.multiLineComment()
             else:
                 self.addToken(tokenType.SLASH)
         elif c == "o":
@@ -95,6 +97,18 @@ class Scanner:
                 self.identifier()
             else:
                 Error.error(self.line, "Unexpected character.")
+
+    def multiLineComment(self):
+        while self.peek() != "*" and not self.isAtEnd():
+            if self.peek() == "\n":
+                self.line += 1
+            self.advance()
+        if self.isAtEnd() or self.peekNext() != "/":
+            Error.error(self.line, "Comment block is not closed")
+        self.advance()
+        self.advance()
+        if not self.isAtEnd():
+            Error.error(self.line, "Wrong syntex")
 
     def isAlpha(self, c) -> bool:
          return (c >= 'a' and c <= 'z') or  (c >= 'A' and c <= 'Z') or c == '_'
