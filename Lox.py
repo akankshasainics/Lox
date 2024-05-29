@@ -1,5 +1,8 @@
 import sys
 from Scanner import Scanner
+from Parser import Parser
+from Expr import Expr
+from AstPrinter import AstPrinter
 
 class Lox:
     hadError: bool = False
@@ -7,12 +10,11 @@ class Lox:
     def run(source: str) -> None:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
-        for token in tokens:
-            print(token.line, end=" ")
-            print(token.lexeme, end= " ")
-            print(token.literal, end= " ")
-            print(token.type)
-            print("------------------")
+        parser = Parser(tokens)
+        expression: Expr | None = parser.parse()
+        if Lox.hadError:
+            return;
+        print(AstPrinter().print(expression))
 
     @staticmethod
     def runFile(path: str) -> None:

@@ -37,7 +37,7 @@ expression = Binary(
                 Grouping(Literal(47.67))
             )
 
-obj = AstPrinter()
-print(obj.print(expression))
+# obj = AstPrinter()
+# print(obj.print(expression))
 
 
