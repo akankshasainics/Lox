@@ -6,56 +6,66 @@ from AstPrinter import AstPrinter
 from RunTimeException import RunTimeException
 from Interpreter import Interpreter
 
-class Lox:
-    hadError: bool = False
-    hadRuntimeError: bool = False
-    interpreter: Interpreter = Interpreter()
 
-    @staticmethod
-    def run(source: str) -> None:
+"""
+1. Lox class -> Lox instance
+2. Visitor(Lox)
+3.  @dataclass
+"""
+
+
+# Singletone
+class Lox:
+    def __init__(self):
+        self.hadError: bool = False
+        self.hadRuntimeError: bool = False
+        self.interpreter: Interpreter = Interpreter(self)
+
+    def run(self,source: str) -> None:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
         parser = Parser(tokens)
         expression: Expr | None = parser.parse()
-        if Lox.hadError:
+        if self.hadError:
             return
-        #print(AstPrinter().print(expression))
-        Lox.interpreter.interpret(expression)
+        self.interpreter.interpret(expression)
 
-    @staticmethod
     def runFile(path: str) -> None:
         inFile = open(path, 'rb') 
         bytes = inFile.read()
         inFile.close()
         # run the program
-        if(Lox.hadError):
+        if(self.hadError):
             return sys.exit(65)
-        if(Lox.hadRuntimeError):
+        if(self.hadRuntimeError):
             return sys.exit(70)
-        
+    
 
-    @staticmethod
-    def runPrompt() -> None:
+    
+    def runPrompt(self) -> None:
         while True:
             line = input("> ")
             if line is None:
                 break
-            Lox.run(line)
-            Lox.hadError = False
+            self.run(line)
+            self.hadError = False
 
-    @staticmethod
-    def runtimeError(error: RunTimeException):
+
+    def runtimeError(self, error: RunTimeException):
         print(error.getMessage() + "\n[line " + error.token.line + "]")
-        lox.hadRuntimeError = True
+        self.hadRuntimeError = True
 
-    def __init__(self, args: list[str]) -> None:
+    def runFromArgs(self, args):
         if len(args) > 1:
             print("Usage: jlox [script]")
             sys.exit(64)
         elif len(args) == 1:
-            Lox.runFile(args[0])
+            self.runFile(args[0])
         else:
-            Lox.runPrompt()
+            self.runPrompt()
+        
+        
+LOX = Lox()
 
-lox = Lox([])
- 
+if __name__ == "__main__":
+    LOX.runFromArgs(sys.argv[1:])

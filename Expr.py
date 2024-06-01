@@ -1,6 +1,14 @@
 from Token import Token
+from typing import  TYPE_CHECKING
+from dataclasses import dataclass
 
+if TYPE_CHECKING:
+	from Lox import Lox
+
+@dataclass
 class Visitor:
+	lox: 'Lox'
+
 	def visitBinaryExpr(self, expr):
 		pass
 	def visitGroupingExpr(self, expr):

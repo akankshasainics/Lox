@@ -1,7 +1,6 @@
 from Expr import Visitor, Expr, Literal, Grouping, Unary, Binary
 from TokenType import tokenType
 from Token import Token
-#from Lox import Lox
 from RunTimeException import RunTimeException
 
 class Interpreter(Visitor):
@@ -109,8 +108,7 @@ class Interpreter(Visitor):
             value: object = self.evaluate(expression)
             print(self.stringify(value))
         except RunTimeException as e:
-            print(e)
-            #Lox.runtimeError(e)
+            self.lox.runtimeError(e)
 
 
 
