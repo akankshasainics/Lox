@@ -2,7 +2,7 @@ from Expr import Expr, Binary, Unary, Literal, Grouping, Variable, Assign
 from TokenType import tokenType
 from Token import Token
 from Error import Error
-from Stmt import Stmt, Print, Expression, Var
+from Stmt import Stmt, Print, Expression, Var, Block
 
 class Parser:
     class ParseError(Exception):
@@ -144,9 +144,18 @@ class Parser:
         self.consume(tokenType.SEMICOLON, "Expect ';' after value.")
         return Print(value)
 
+    def block(self) -> Stmt:
+        statements = []
+        while not self.check(tokenType.RIGHT_BRACE) and not self.isAtEnd():
+            statements.append(self.declaration())
+        self.consume(tokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
+
     def statement(self) -> Stmt:
         if self.match(tokenType.PRINT):
             return self.printStatement()
+        if self.match(tokenType.LEFT_BRACE):
+            return Block(self.block())
         return self.expressionStatement()
 
     def varDeclaration(self) -> Stmt:

@@ -1,5 +1,5 @@
 from Expr import Visitor as eVisitor, Expr, Literal, Grouping, Unary, Binary, Variable, Assign
-from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var
+from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var, Block
 from TokenType import tokenType
 from Token import Token
 from RunTimeException import RunTimeException
@@ -119,6 +119,18 @@ class Interpreter(eVisitor, sVisitor):
         value: object = self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
         return value
+
+    def executeBlock(self, statements: list[Stmt], environment: Environment):
+        previous: Environment = self.environment
+        try:
+            self.environment = environment
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
+    def visitBlockStmt(self, stmt: Block):
+        self.executeBlock(stmt.statements, Environment(self.environment))
 
     def stringify(self, value: object) -> str:
         if value is None:

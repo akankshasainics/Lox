@@ -8,6 +8,8 @@ class Visitor:
 		pass
 	def visitVarStmt(self, Stmt):
 		pass
+	def visitBlockStmt(self, statements):
+		pass
 
 class Stmt :
 	def __init__(self):
@@ -19,7 +21,6 @@ class Stmt :
 class Expression(Stmt):
 	def __init__(self, expression: Expr):
 		self.expression = expression
-	expression: Expr
 
 	def accept(self, visitor: Visitor):
 		return visitor.visitExpressionStmt(self)
@@ -27,7 +28,6 @@ class Expression(Stmt):
 class Print(Stmt):
 	def __init__(self, expression: Expr):
 		self.expression = expression
-	expression: Expr
 
 	def accept(self, visitor: Visitor):
 		return visitor.visitPrintStmt(self)
@@ -40,3 +40,9 @@ class Var(Stmt):
 	def accept(self, visitor: Visitor):
 		return visitor.visitVarStmt(self)
 
+class Block(Stmt):
+	def __init__(self, statements):
+		self.statements = statements
+
+	def accept(self, visitor: Visitor):
+		return visitor.visitBlockStmt(self)
