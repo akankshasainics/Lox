@@ -2,6 +2,7 @@ import sys
 from Scanner import Scanner
 from Parser import Parser
 from Expr import Expr
+from Stmt import Stmt
 from AstPrinter import AstPrinter
 from RunTimeException import RunTimeException
 from Interpreter import Interpreter
@@ -19,18 +20,21 @@ class Lox:
     def __init__(self):
         self.hadError: bool = False
         self.hadRuntimeError: bool = False
-        self.interpreter: Interpreter = Interpreter(self)
+        self.interpreter: Interpreter = Interpreter()
+
+    def setError(self):
+        self.hadError = True
 
     def run(self,source: str) -> None:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
         parser = Parser(tokens)
-        expression: Expr | None = parser.parse()
+        statements: list[Stmt] = parser.parse()
         if self.hadError:
             return
-        self.interpreter.interpret(expression)
+        self.interpreter.interpret(statements)
 
-    def runFile(path: str) -> None:
+    def runFile(self, path: str) -> None:
         inFile = open(path, 'rb') 
         bytes = inFile.read()
         inFile.close()
@@ -40,8 +44,6 @@ class Lox:
         if(self.hadRuntimeError):
             return sys.exit(70)
     
-
-    
     def runPrompt(self) -> None:
         while True:
             line = input("> ")
@@ -50,9 +52,8 @@ class Lox:
             self.run(line)
             self.hadError = False
 
-
     def runtimeError(self, error: RunTimeException):
-        print(error.getMessage() + "\n[line " + error.token.line + "]")
+        print(error.getMessage() + "\n[line " + str(error.token.line) + "]")
         self.hadRuntimeError = True
 
     def runFromArgs(self, args):

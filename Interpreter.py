@@ -1,9 +1,15 @@
-from Expr import Visitor, Expr, Literal, Grouping, Unary, Binary
+from Expr import Visitor as eVisitor, Expr, Literal, Grouping, Unary, Binary, Variable, Assign
+from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var
 from TokenType import tokenType
 from Token import Token
 from RunTimeException import RunTimeException
+from Environment import Environment
 
-class Interpreter(Visitor):
+
+class Interpreter(eVisitor, sVisitor):
+    def __init__(self):
+        self.environment = Environment()
+
     def visitLiteralExpr(self, expr: Literal):
         return expr.value
 
@@ -55,7 +61,7 @@ class Interpreter(Visitor):
         # divide
         if expr.operator.type == tokenType.SLASH:
             self.checkNumberOperands(expr.operator, left, right);
-            if float(right) == 0:
+            if float(right) == 0.0:
                 raise RunTimeException(expr.operator, "Error: Divison by zero")
             return float(left) / float(right)
         # multiply
@@ -93,6 +99,27 @@ class Interpreter(Visitor):
             return self.isEqual(left, right)
         return None
 
+    def visitExpressionStmt(self, stmt: Expression) -> None:
+        self.evaluate(stmt.expression)
+
+    def visitPrintStmt(self, stmt: Print) -> None:
+        value: object = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+
+    def visitVarStmt(self, stmt: Var):
+        value: object = None
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+        self.environment.define(stmt.name.lexeme, value)
+
+    def visitVariableExpr(self, expr: Variable):
+        return self.environment.get(expr.name)
+
+    def visitAssignExpr(self, expr: Assign):
+        value: object = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
+
     def stringify(self, value: object) -> str:
         if value is None:
             return "nil"
@@ -103,10 +130,13 @@ class Interpreter(Visitor):
             return text
         return str(value)
 
-    def interpret(self, expression: Expr):
+    def execute(self, stmt: Stmt):
+        stmt.accept(self)
+
+    def interpret(self, statements: list[Stmt]):
         try:
-            value: object = self.evaluate(expression)
-            print(self.stringify(value))
+            for statement in statements:
+                self.execute(statement)
         except RunTimeException as e:
             self.lox.runtimeError(e)
 

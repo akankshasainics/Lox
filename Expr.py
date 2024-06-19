@@ -17,6 +17,10 @@ class Visitor:
 		pass
 	def visitUnaryExpr(self, expr):
 		pass
+	def visitVariableExpr(self, expr):
+		pass
+	def visitAssignExpr(self, expr):
+		pass
 
 class Expr :
 	def __init__(self):
@@ -63,3 +67,17 @@ class Unary(Expr):
 	def accept(self, visitor: Visitor):
 		return visitor.visitUnaryExpr(self)
 
+class Variable(Expr):
+	def __init__(self, name: Token):
+		self.name = name
+
+	def accept(self, visitor: Visitor):
+		return visitor.visitVariableExpr(self)
+
+class Assign(Expr):
+	def __init__(self, name: Token, value: Expr):
+		self.name = name
+		self.value = value
+
+	def accept(self, visitor: Visitor):
+		return visitor.visitAssignExpr(self)
