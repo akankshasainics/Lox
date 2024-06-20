@@ -8,7 +8,9 @@ class Visitor:
 		pass
 	def visitVarStmt(self, Stmt):
 		pass
-	def visitBlockStmt(self, statements):
+	def visitBlockStmt(self, Stmt):
+		pass
+	def visitIfStmt(self, Stmt):
 		pass
 
 class Stmt :
@@ -41,8 +43,18 @@ class Var(Stmt):
 		return visitor.visitVarStmt(self)
 
 class Block(Stmt):
-	def __init__(self, statements):
+	def __init__(self, statements: list[Stmt]):
 		self.statements = statements
 
 	def accept(self, visitor: Visitor):
 		return visitor.visitBlockStmt(self)
+
+class If(Stmt):
+	def __init__(self, condition: Expr,thenBranch: Stmt,elseBranch: Stmt):
+		self.condition = condition
+		self.thenBranch = thenBranch
+		self.elseBranch = elseBranch
+
+	def accept(self, visitor: Visitor):
+		return visitor.visitIfStmt(self)
+

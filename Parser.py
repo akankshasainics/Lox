@@ -2,7 +2,7 @@ from Expr import Expr, Binary, Unary, Literal, Grouping, Variable, Assign
 from TokenType import tokenType
 from Token import Token
 from Error import Error
-from Stmt import Stmt, Print, Expression, Var, Block
+from Stmt import Stmt, Print, Expression, Var, Block, If
 
 class Parser:
     class ParseError(Exception):
@@ -150,12 +150,27 @@ class Parser:
             statements.append(self.declaration())
         self.consume(tokenType.RIGHT_BRACE, "Expect '}' after block.")
         return statements
+    
+    def ifStatement(self) -> Stmt:
+        self.consume(tokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition: Expr = self.expression()
+        self.consume(tokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+
+        thenBranch: Stmt = self.statement()
+        elseBranch: Stmt = None
+        if self.match(tokenType.ELSE):
+            elseBranch = self.statement()
+        
+        return If(condition, thenBranch, elseBranch) 
+
 
     def statement(self) -> Stmt:
         if self.match(tokenType.PRINT):
             return self.printStatement()
         if self.match(tokenType.LEFT_BRACE):
             return Block(self.block())
+        if self.match(tokenType.IF):
+            return self.ifStatement()
         return self.expressionStatement()
 
     def varDeclaration(self) -> Stmt:

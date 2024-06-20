@@ -1,5 +1,5 @@
 from Expr import Visitor as eVisitor, Expr, Literal, Grouping, Unary, Binary, Variable, Assign
-from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var, Block
+from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var, Block, If
 from TokenType import tokenType
 from Token import Token
 from RunTimeException import RunTimeException
@@ -132,6 +132,13 @@ class Interpreter(eVisitor, sVisitor):
     def visitBlockStmt(self, stmt: Block):
         self.executeBlock(stmt.statements, Environment(self.environment))
 
+    def visitIfStmt(self, stmt: If):
+        if self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        elif stmt.elseBranch is not None:
+            self.execute(stmt.elseBranch)
+        return None
+
     def stringify(self, value: object) -> str:
         if value is None:
             return "nil"
@@ -140,6 +147,8 @@ class Interpreter(eVisitor, sVisitor):
             if len(text) >= 2 and text[-2:] == ".0":
                 text = text[:-2]
             return text
+        if type(value) == bool:
+            return "true" if value else "false"
         return str(value)
 
     def execute(self, stmt: Stmt):
