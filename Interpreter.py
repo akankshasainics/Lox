@@ -1,5 +1,5 @@
 from Expr import Visitor as eVisitor, Expr, Literal, Grouping, Unary, Binary, Variable, Assign, Logical
-from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var, Block, If
+from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var, Block, If, While
 from TokenType import tokenType
 from Token import Token
 from RunTimeException import RunTimeException
@@ -49,6 +49,11 @@ class Interpreter(eVisitor, sVisitor):
         if a is None:
             return False 
         return a.__eq__(b)
+
+    def visitWhileStmt(self, stmt: While):
+        while self.isTruthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
+        return None
 
     def visitBinaryExpr(self, expr: Binary):
         left: object = self.evaluate(expr.left)

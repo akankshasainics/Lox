@@ -1,6 +1,6 @@
-from Expr import Expr
-from Token import Token
-
+from Expr import Expr 
+from Token import Token 
+ 
 class Visitor:
 	def visitExpressionStmt(self, Stmt):
 		pass
@@ -11,6 +11,8 @@ class Visitor:
 	def visitBlockStmt(self, Stmt):
 		pass
 	def visitIfStmt(self, Stmt):
+		pass
+	def visitWhileStmt(self, Stmt):
 		pass
 
 class Stmt :
@@ -57,4 +59,12 @@ class If(Stmt):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visitIfStmt(self)
+
+class While(Stmt):
+	def __init__(self, condition: Expr,body: Stmt):
+		self.condition = condition
+		self.body = body
+
+	def accept(self, visitor: Visitor):
+		return visitor.visitWhileStmt(self)
 

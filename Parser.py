@@ -2,7 +2,7 @@ from Expr import Expr, Binary, Unary, Literal, Grouping, Variable, Assign, Logic
 from TokenType import tokenType
 from Token import Token
 from Error import Error
-from Stmt import Stmt, Print, Expression, Var, Block, If
+from Stmt import Stmt, Print, Expression, Var, Block, If, While
 
 class Parser:
     class ParseError(Exception):
@@ -188,7 +188,16 @@ class Parser:
             return Block(self.block())
         if self.match(tokenType.IF):
             return self.ifStatement()
+        if self.match(tokenType.WHILE):
+            return self.whileStatement()
         return self.expressionStatement()
+
+    def whileStatement(self) -> Stmt:
+        self.consume(tokenType.LEFT_PAREN, "Expect '(' after while.")
+        condition: Expr = self.expression()
+        self.consume(tokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        body: Stmt = self.statement()
+        return While(condition, body)
 
     def varDeclaration(self) -> Stmt:
         name: Token = self.consume(tokenType.IDENTIFIER, "Expect variable name.")
