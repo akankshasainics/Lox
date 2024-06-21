@@ -1,4 +1,4 @@
-from Expr import Visitor as eVisitor, Expr, Literal, Grouping, Unary, Binary, Variable, Assign
+from Expr import Visitor as eVisitor, Expr, Literal, Grouping, Unary, Binary, Variable, Assign, Logical
 from Stmt import Visitor as sVisitor, Expression, Print, Stmt, Var, Block, If
 from TokenType import tokenType
 from Token import Token
@@ -20,9 +20,9 @@ class Interpreter(eVisitor, sVisitor):
         return self.evaluate(expr.expression)
 
     def isTruthy(self, obj: object) -> bool:
-        if type(obj) == None:
+        if obj is None:
             return False
-        if type(obj) == bool:
+        if type(obj) ==  bool:
             return bool(obj)
         return True
 
@@ -138,6 +138,16 @@ class Interpreter(eVisitor, sVisitor):
         elif stmt.elseBranch is not None:
             self.execute(stmt.elseBranch)
         return None
+    
+    def visitLogicalExpr(self, expr: Logical):
+        left: object = self.evaluate(expr.left)
+        if expr.operator.type == tokenType.OR:
+            if self.isTruthy(left):
+                return left
+        else:
+            if not self.isTruthy(left):
+                return left
+        return self.evaluate(expr.right)
 
     def stringify(self, value: object) -> str:
         if value is None:

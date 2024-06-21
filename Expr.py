@@ -21,6 +21,8 @@ class Visitor:
 		pass
 	def visitAssignExpr(self, expr):
 		pass
+	def visitLogicalExpr(self, expr):
+		pass
 
 class Expr :
 	def __init__(self):
@@ -81,3 +83,12 @@ class Assign(Expr):
 
 	def accept(self, visitor: Visitor):
 		return visitor.visitAssignExpr(self)
+
+class Logical(Expr):
+	def __init__(self, left: Expr, operator: Token, right: Expr):
+		self.left = left
+		self.right = right
+		self.operator = operator
+
+	def accept(self, visitor: Visitor):
+		return visitor.visitLogicalExpr(self)

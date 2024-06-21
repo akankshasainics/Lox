@@ -1,4 +1,4 @@
-from Expr import Expr, Binary, Unary, Literal, Grouping, Variable, Assign
+from Expr import Expr, Binary, Unary, Literal, Grouping, Variable, Assign, Logical
 from TokenType import tokenType
 from Token import Token
 from Error import Error
@@ -110,8 +110,25 @@ class Parser:
             expr = Binary(expr, operator, right)
         return expr
 
-    def assignment(self) -> Expr:
+    def AND(self) -> Expr:
         expr: Expr = self.equality()
+        while self.match(tokenType.AND):
+            operator: Token = self.previous()
+            right: Expr = self.equality()
+            expr: Expr = Logical(expr, operator, right)
+        return expr
+
+    def OR(self) -> Expr:
+        expr: Expr = self.AND()
+        while self.match(tokenType.OR):
+            operator: Token = self.previous()
+            right: Expr = self.AND()
+            expr = Logical(expr, operator, right)
+        return expr
+        
+
+    def assignment(self) -> Expr:
+        expr: Expr = self.OR()
         if self.match(tokenType.EQUAL):
             equals: Token = self.previous()
             value: Expr = self.assignment()
