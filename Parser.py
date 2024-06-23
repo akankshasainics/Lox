@@ -180,6 +180,38 @@ class Parser:
         
         return If(condition, thenBranch, elseBranch) 
 
+    def forStatement(self):
+        self.consume(tokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        initializer: Stmt = None
+        if self.match(tokenType.VAR):
+            initializer = self.varDeclaration()
+        elif not self.check(tokenType.SEMICOLON):
+            initializer  = self.expressionStatement()
+
+        condition: Expr = None
+        if not self.check(tokenType.SEMICOLON):
+            condition = self.expression()
+        self.consume(tokenType.SEMICOLON, "Expect ';' after loop condition.")
+
+        increment: Expr = None
+        if not self.check(tokenType.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(tokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+        
+        body: Stmt = self.statement()
+
+        if increment is not None:
+            body = Block([body, Expression(increment)])
+
+        if condition is None:
+            condition = Literal(True)
+        body = While(condition, body)
+
+        if initializer is not None:
+            body = Block([initializer, body])
+        return body
+
+
 
     def statement(self) -> Stmt:
         if self.match(tokenType.PRINT):
@@ -190,6 +222,8 @@ class Parser:
             return self.ifStatement()
         if self.match(tokenType.WHILE):
             return self.whileStatement()
+        if self.match(tokenType.FOR):
+            return self.forStatement()
         return self.expressionStatement()
 
     def whileStatement(self) -> Stmt:

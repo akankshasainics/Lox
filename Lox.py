@@ -38,6 +38,8 @@ class Lox:
         inFile = open(path, 'rb') 
         bytes = inFile.read()
         inFile.close()
+        source = bytes.decode("utf-8")
+        self.run(source)
         # run the program
         if(self.hadError):
             return sys.exit(65)
